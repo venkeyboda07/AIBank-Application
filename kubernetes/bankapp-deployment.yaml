@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bankapp
+  namespace: bankapp
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: bankapp
+  template:
+    metadata:
+      labels:
+        app: bankapp
+    spec:
+      containers:
+      - name: bankapp
+        image: venkeyboda/aibankapp:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MYSQL_HOST
+          value: mysql
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: bankappdb
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_PASSWORD
+          value: Test@123
+        - name: OLLAMA_URL
+          value: http://ollama:11434
+        - name: OLLAMA_MODEL
+          value: tinyllama
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bankapp
+  namespace: bankapp
+spec:
+  type: LoadBalancer
+  selector:
+    app: bankapp
+  ports:
+  - port: 80
+    targetPort: 8080
+    
