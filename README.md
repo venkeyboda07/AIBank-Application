@@ -141,18 +141,39 @@ ollama.model=tinyllama
 ### AI Assistant
 
 ![Chatbot](Images/chatbot.jpg)
-
-
 ---
 
-## Future Enhancements
+## Project Structure
 
-- Kubernetes Deployment
-- CI/CD with GitHub Actions
-- Grafana Dashboard
-- JWT Authentication
-- Loan Prediction AI
-- Cloud Deployment (AWS / Azure)
+src/main/java/com/example/bankapp/
+├── config/          # Security configuration
+├── controller/      # Web endpoints
+├── model/           # Account & Transaction entities
+├── repository/      # JPA repositories
+└── service/         # Business logic
+
+src/main/resources/
+├── templates/       # Thymeleaf HTML pages
+├── static/          # CSS, JS (theme toggle)
+└── application.properties
+
+## Environment Variables
+
+| Variable         | Default    | Description          |
+|------------------|------------|----------------------|
+| `MYSQL_HOST`     | localhost  | Database host        |
+| `MYSQL_PORT`     | 3306       | Database port        |
+| `MYSQL_DATABASE` | bankappdb  | Database name        |
+| `MYSQL_USER`     | root       | Database username    |
+| `MYSQL_PASSWORD` | Test@123   | Database password    |
+
+## Branch Roadmap
+
+| Branch   | What it adds                                          |
+|----------|-------------------------------------------------------|
+| `start`  | Modernized app (backend + frontend)                   |
+| `docker` | Dockerfile, multistage build, Compose, AI chatbot     |
+| `main`   | Full DevOps pipeline (CI/CD, K8s, etc.)               |
 
 ---
 
