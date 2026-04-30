@@ -1,0 +1,4 @@
+docker run -d -p 3306:3306 -v mysql-data:/var/lib/mysql --network=bankapp -e MYSQL_ROOT_PASSWORD=root
+
+
+docker run -d -p 8080:8080 --network-bankapp ai-bankapp
