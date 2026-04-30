@@ -88,22 +88,22 @@ jobs:
     - name: Build Docker Image
       run: |
         docker build -t aibankapp .
-        docker tag aibankapp:latest $DOCKER_USERNAME/aibankapp:latest
+        docker tag aibankapp:latest $DOCKER_USERNAME/aibankapp:${{ github.run_number }}
     # -------------------------------
     # Trivy Docker Image Scan
     # -------------------------------
     - name: Trivy Image Scan
       run: |
-        trivy image --severity HIGH,CRITICAL --format table -o trivy-report.txt $DOCKER_USERNAME/aibankapp:latest
+        trivy image --severity HIGH,CRITICAL --format table -o trivy-report.txt $DOCKER_USERNAME/aibankapp:${{ github.run_number }}
 
     # -------------------------------
     # Push Image to DockerHub
     # -------------------------------
     - name: Push Docker Image
       run: |
-        docker push $DOCKER_USERNAME/aibankapp:latest   
+        docker push $DOCKER_USERNAME/aibankapp:${{ github.run_number }} 
     # -------------------------------
-    # upload vulnurability report 
+    # upload trivy Artifacts report 
     # -------------------------------
     - name: upload report
       uses: actions/upload-artifact@v4
@@ -111,4 +111,3 @@ jobs:
         name: trivy-report
         path: trivy-report.txt
 
-        
