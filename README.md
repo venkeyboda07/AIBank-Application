@@ -126,26 +126,22 @@ ollama.model=tinyllama
 
 ### Ollama Running Page
 
-```markdown
 ![Ollama](Images/Ollama.jpg)
-```
+
 ### Login Page
 
-```markdown
 ![Login](Images/login-page.jpg)
-```
+
 
 ### Dashboard
 
-```markdown
 ![Dashboard](Images/dashboard.jpg)
-```
+
 
 ### AI Assistant
 
-```markdown
 ![Chatbot](Images/chatbot.jpg)
-```
+
 
 ---
 
