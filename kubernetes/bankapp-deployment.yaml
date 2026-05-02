@@ -4,7 +4,7 @@ metadata:
   name: bankapp
   namespace: bankapp
 spec:
-  replicas: 2 
+  replicas: 2
   selector:
     matchLabels:
       app: bankapp
@@ -18,21 +18,66 @@ spec:
         image: venkeyboda/aibankapp:latest
         ports:
         - containerPort: 8080
+
         env:
         - name: MYSQL_HOST
           value: mysql
         - name: MYSQL_PORT
           value: "3306"
         - name: MYSQL_DATABASE
-          value: bankappdb
-        - name: MYSQL_ROOT_PASSWORD
-          value: Test@123
-        - name: MYSQL_DATABASE
-          value: bankappdb
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config
+              key: MYSQL_DATABASE
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+
         - name: OLLAMA_URL
-          value: http://ollama:11434
+          value: "http://ollama.bankapp.svc.cluster.local:11434"
         - name: OLLAMA_MODEL
-          value: tinyllama
+          value: "tinyllama"
+        - name: OLLAMA_TIMEOUT
+          value: "30"
+
+        # ========================
+        # RESOURCES (IMPORTANT)
+        # ========================
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+        # ========================
+        # HEALTH CHECKS (recommended)
+        # ========================
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
 
 ---
 apiVersion: v1
@@ -41,7 +86,7 @@ metadata:
   name: bankapp
   namespace: bankapp
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: bankapp
   ports:

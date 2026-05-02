@@ -18,18 +18,66 @@ spec:
         image: mysql:8.0
         ports:
         - containerPort: 3306
+
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: Test@123
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
         - name: MYSQL_DATABASE
-          value: bankappdb
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config
+              key: MYSQL_DATABASE
+
+        # ========================
+        # RESOURCES (IMPORTANT)
+        # ========================
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+
+        # ========================
+        # HEALTH CHECKS (VERY IMPORTANT FOR MYSQL)
+        # ========================
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - "-h"
+            - 127.0.0.1
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - "-h"
+            - 127.0.0.1
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
         volumeMounts:
         - name: mysql-storage
           mountPath: /var/lib/mysql
+
       volumes:
       - name: mysql-storage
         persistentVolumeClaim:
           claimName: mysql-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -41,4 +89,4 @@ spec:
     app: mysql
   ports:
   - port: 3306
-    targetPort: 3306          
+    targetPort: 3306

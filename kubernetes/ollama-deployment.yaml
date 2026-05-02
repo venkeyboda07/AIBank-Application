@@ -19,6 +19,60 @@ spec:
         ports:
         - containerPort: 11434
 
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama
+
+        # ========================
+        # FIXED STARTUP LOGIC
+        # ========================
+        command: ["/bin/sh","-c"]
+        args:
+          - |
+            echo "Starting Ollama..."
+            ollama serve &
+            
+            echo "Waiting for API..."
+            until curl -s http://localhost:11434/api/tags; do
+              sleep 2
+            done
+
+            echo "Pulling model (tinyllama)..."
+            ollama pull tinyllama || true
+
+            wait
+
+        # ========================
+        # RESOURCES (IMPORTANT)
+        # ========================
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+
+        readinessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 20
+
+      volumes:
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -30,5 +84,4 @@ spec:
     app: ollama
   ports:
   - port: 11434
-    targetPort: 11434        
-    
+    targetPort: 11434
