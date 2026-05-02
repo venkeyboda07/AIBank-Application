@@ -16,9 +16,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  build-maven:
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      run_ci: ${{ steps.filter.outputs.ci }}
 
     steps:
       # -------------------------------
@@ -27,10 +28,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Filter changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            - 'src/**'
+            - 'pom.xml'
+            - 'Dockerfile'
+            - 'Docker-compose.yaml'
+  build-maven:
+    needs: [changes]
+    if: needs.changes.outputs.run_ci == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
       # -------------------------------
       # Setup Java
       # -------------------------------
-
+    
       - name: Build with Maven
         uses: actions/setup-java@v4
         with:
@@ -56,7 +72,8 @@ jobs:
 
   Image-build-Scan-Push:      
     runs-on: ubuntu-latest
-    needs: [build-maven]
+    needs: [changes,build-maven]
+    if: needs.changes.outputs.run_ci == 'true'
 
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -116,7 +133,8 @@ jobs:
 # ==========================================================
   eks-create:
     runs-on: ubuntu-latest
-    needs: [build-maven,Image-build-Scan-Push]
+    needs: [changes,build-maven,Image-build-Scan-Push]
+    if: always()
 
     steps:
 
@@ -131,6 +149,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-south-1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -161,6 +180,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-south-1
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name aibankapp-eks --region us-east-1
