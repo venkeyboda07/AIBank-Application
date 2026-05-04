@@ -54,4 +54,3 @@ EXPOSE 8080
 # Start the Spring Boot application
 # java -jar app.jar runs executable JAR file
 CMD ["java","-jar","app.jar"]
-
