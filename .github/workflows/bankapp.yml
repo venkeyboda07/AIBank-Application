@@ -169,6 +169,7 @@ jobs:
           terraform plan -out=tfplan
 
       - name: Terraform Apply
+        working-directory: Infra
         run: terraform apply -auto-approve tfplan
 
   deploy-app:
