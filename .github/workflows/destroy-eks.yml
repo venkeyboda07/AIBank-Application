@@ -1,17 +1,18 @@
-name: Destroy EKS Cluster
+name: Destroy Infra
 
 on:
   workflow_dispatch:
 
 env:
   AWS_REGION: ap-south-1
-  CLUSTER_NAME: bankapp_aws-cluster
 
 jobs:
   destroy:
     runs-on: ubuntu-latest
 
     steps:
+
+    - uses: actions/checkout@v4
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -20,11 +21,19 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Install eksctl
-      run: |
-        curl -sLO https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz
-        tar -xzf eksctl_Linux_amd64.tar.gz
-        sudo mv eksctl /usr/local/bin/
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
 
-    - name: Delete Cluster
-      run: eksctl delete cluster --name $CLUSTER_NAME --region $AWS_REGION
+    - name: Terraform Init
+      working-directory: Infra
+      run: terraform init
+
+    - name: Delete orphan EBS volumes
+      run: |
+        aws ec2 describe-volumes \
+          --filters Name=status,Values=available \
+          --query "Volumes[].VolumeId" \
+          --output text | xargs -r aws ec2 delete-volume --volume-id
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
