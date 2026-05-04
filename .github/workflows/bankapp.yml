@@ -62,55 +62,32 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      # -------------------------------
-      #  Cache Maven Packages
-      # -------------------------------
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      # -------------------------------
-      # Build Application
-      # -------------------------------
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
-     # --------------------------------
-      # SonarQube Scan
-      # Add these secrets:
-      # SONAR_HOST_URL
-      # SONAR_TOKEN
-      # --------------------------------
-      - name: SonarQube Scan
+          
+  # -------------------------------
+  # Build + Test + SonarQube
+  # -------------------------------
+      - name: Build, Test & Sonar Scan
         run: |
-          mvn sonar:sonar \
+          mvn clean verify sonar:sonar \
           -Dsonar.projectKey=AIBankApp \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-      # --------------------------------
-      # OWASP Dependency Check
-      # --------------------------------
+  # -------------------------------
+    # OWASP (Maven Plugin)
+    # -------------------------------
       - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: "AIBankApp"
-          path: "."
-          format: "HTML"
+        run: mvn org.owasp:dependency-check-maven:check
 
-      # --------------------------------
-      # Upload Dependency Check Report
-      # --------------------------------
+    # -------------------------------
+    # Upload OWASP Report
+    # -------------------------------
       - name: Upload Dependency Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
-          path: reports        
+          path: target/dependency-check-report.html     
 
   Image-build-Scan-Push:      
     runs-on: ubuntu-latest

@@ -81,12 +81,54 @@
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+	<plugins>
+
+		<!-- Spring Boot Plugin -->
+		<plugin>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-maven-plugin</artifactId>
+		</plugin>
+
+		<!-- ✅ JaCoCo (Code Coverage) -->
+		<plugin>
+		<groupId>org.jacoco</groupId>
+		<artifactId>jacoco-maven-plugin</artifactId>
+		<version>0.8.11</version>
+		<executions>
+			<execution>
+			<goals>
+				<goal>prepare-agent</goal>
+			</goals>
+			</execution>
+			<execution>
+			<id>report</id>
+			<phase>test</phase>
+			<goals>
+				<goal>report</goal>
+			</goals>
+			</execution>
+		</executions>
+		</plugin>
+
+		<!-- ✅ OWASP Dependency Check -->
+		<plugin>
+		<groupId>org.owasp</groupId>
+		<artifactId>dependency-check-maven</artifactId>
+		<version>9.0.9</version>
+		<configuration>
+			<format>HTML</format>
+			<failBuildOnCVSS>7</failBuildOnCVSS>
+		</configuration>
+		</plugin>
+
+		<!-- ✅ Surefire Plugin (Test Execution) -->
+		<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
+		<version>3.2.5</version>
+		</plugin>
+
+	</plugins>
 	</build>
 
 </project>
