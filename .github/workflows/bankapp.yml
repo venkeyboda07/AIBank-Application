@@ -44,10 +44,14 @@ jobs:
               - 'kuberentes/**'
   build-maven:
     needs: [changes]
-    if: needs.changes.outputs.run_app == 'true'
+    if: always()
     runs-on: ubuntu-latest
     
     steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       # -------------------------------
       # Setup Java
       # -------------------------------
