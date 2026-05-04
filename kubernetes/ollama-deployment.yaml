@@ -31,14 +31,12 @@ spec:
           - |
             echo "Starting Ollama..."
             ollama serve &
-            
-            echo "Waiting for API..."
-            until curl -s http://localhost:11434/api/tags; do
-              sleep 2
-            done
 
-            echo "Pulling model (tinyllama)..."
-            ollama pull tinyllama || true
+            echo "Sleeping for startup..."
+            sleep 10
+
+            echo "Pulling model..."
+            ollama pull tinyllama
 
             wait
 
