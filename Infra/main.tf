@@ -104,6 +104,8 @@ resource "aws_iam_role" "bankapp_aws_cluster_role" {
 resource "aws_iam_role_policy_attachment" "cluster_policy" {
   role       = aws_iam_role.bankapp_aws_cluster_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+
+  depends_on = [aws_iam_role.bankapp_aws_cluster_role]
 }
 
 resource "aws_iam_role" "bankapp_aws_node_group_role" {
@@ -125,11 +127,15 @@ resource "aws_iam_role" "bankapp_aws_node_group_role" {
 resource "aws_iam_role_policy_attachment" "node_policy" {
   role       = aws_iam_role.bankapp_aws_node_group_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+
+  depends_on = [aws_iam_role.bankapp_aws_node_group_role]
 }
 
 resource "aws_iam_role_policy_attachment" "cni_policy" {
   role       = aws_iam_role.bankapp_aws_node_group_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+
+  depends_on = [aws_iam_role.bankapp_aws_node_group_role]
 }
 
 resource "aws_iam_role_policy_attachment" "registry_policy" {
