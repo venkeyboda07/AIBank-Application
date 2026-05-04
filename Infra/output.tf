@@ -1,3 +1,7 @@
+output "kubeconfig_command" {
+  value = "aws eks update-kubeconfig --name ${aws_eks_cluster.bankapp_aws.name} --region ${var.region}"
+}
+
 output "cluster_id" {
   value = aws_eks_cluster.bankapp_aws.id
 }
