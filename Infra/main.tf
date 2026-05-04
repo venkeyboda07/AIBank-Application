@@ -173,3 +173,4 @@ resource "aws_iam_role_policy_attachment" "bankapp_aws_node_group_registry_polic
   role       = aws_iam_role.bankapp_aws_node_group_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
+
