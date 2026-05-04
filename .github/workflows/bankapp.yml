@@ -199,3 +199,4 @@ jobs:
          kubectl apply -f kubernetes/namespace.yaml
          sleep 30s
          kubectl apply -f kubernetes/
+         
