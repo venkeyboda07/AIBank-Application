@@ -62,7 +62,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          
+      
+      - name: clean package
+        run: mvn clean package -DskipTests
   # -------------------------------
   # Build + Test + SonarQube
   # -------------------------------
