@@ -62,7 +62,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      
+          
   # -------------------------------
   # Build + Test + SonarQube
   # -------------------------------
@@ -74,20 +74,13 @@ jobs:
           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
-    # -------------------------------
-    # Cache OWASP DB (IMPORTANT)
-    # -------------------------------
-      - name: Cache OWASP DB
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository/org/owasp/dependency-check-data
-          key: owasp-db
-
-    # -------------------------------
-    # OWASP Dependency Check
+  # -------------------------------
+    # OWASP (Maven Plugin)
     # -------------------------------
       - name: OWASP Dependency Check
         run: mvn org.owasp:dependency-check-maven:check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
     # -------------------------------
     # Upload OWASP Report
@@ -96,21 +89,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
-          path: target/dependency-check-report.html
-  # # -------------------------------
-  #   # OWASP (Maven Plugin)
-  #   # -------------------------------
-  #     - name: OWASP Dependency Check
-  #       run: mvn org.owasp:dependency-check-maven:check -DnvdApiEnabled=false
-
-  #   # -------------------------------
-  #   # Upload OWASP Report
-  #   # -------------------------------
-  #     - name: Upload Dependency Report
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: dependency-check-report
-  #         path: target/dependency-check-report.html     
+          path: target/dependency-check-report.html     
 
   Image-build-Scan-Push:      
     runs-on: ubuntu-latest
