@@ -79,6 +79,8 @@ jobs:
     # -------------------------------
       - name: OWASP Dependency Check
         run: mvn org.owasp:dependency-check-maven:check
+            -DautoUpdate=false \
+            -Dnvd.api.enabled=false
 
     # -------------------------------
     # Upload OWASP Report
