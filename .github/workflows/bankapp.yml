@@ -69,11 +69,32 @@ jobs:
       - name: Build, Test & Sonar Scan
         run: |
           mvn clean verify sonar:sonar \
+          -Dspring.profiles.active=test \
           -Dsonar.projectKey=AIBankApp \
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-
+  # -------------------------------
+  # Cache OWASP DB (VERY IMPORTANT)
+  # -------------------------------
+      - name: Cache OWASP DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: owasp-db
+  # -------------------------------
+  # Debug (check if key is present)
+  # -------------------------------
+      - name: Verify NVD API Key
+        run: |
+          if [ -z "$NVD_API_KEY" ]; then
+            echo "❌ NVD API KEY NOT FOUND"
+            exit 1
+          else
+            echo "✅ NVD API KEY FOUND"
+          fi
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
   # -------------------------------
     # OWASP (Maven Plugin)
     # -------------------------------
