@@ -25,11 +25,11 @@ jobs:
       uses: hashicorp/setup-terraform@v3
 
     - name: Terraform Init
-      working-directory: Infra
+      working-directory: terraform
       run: terraform init
 
     - name: Delete orphan EBS volumes
-      working-directory: Infra
+      working-directory: terraform
       run: |
         aws ec2 describe-volumes \
           --filters Name=status,Values=available \
@@ -37,6 +37,6 @@ jobs:
           --output text | xargs -r aws ec2 delete-volume --volume-id
 
     - name: Terraform Destroy
-      working-directory: Infra
+      working-directory: terraform
       run: terraform destroy -auto-approve
       

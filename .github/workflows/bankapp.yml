@@ -40,11 +40,11 @@ jobs:
               - 'Dockerfile'
               - 'Docker-compose.yaml'
             infra:
-              - 'Infra/**'
+              - 'terraform/**'
               - 'kuberentes/**'
   build-maven:
     needs: [changes]
-    if: always()
+    if: needs.changes.outputs.run_app == 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -82,20 +82,8 @@ jobs:
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
           key: owasp-db
-  # -------------------------------
-  # Debug (check if key is present)
-  # -------------------------------
-      - name: Verify NVD API Key
-        run: |
-          if [ -z "$NVD_API_KEY" ]; then
-            echo "❌ NVD API KEY NOT FOUND"
-            exit 1
-          else
-            echo "✅ NVD API KEY FOUND"
-          fi
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-  # -------------------------------
+
+    # -------------------------------
     # OWASP (Maven Plugin)
     # -------------------------------
       - name: OWASP Dependency Check
@@ -197,16 +185,16 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        working-directory: Infra
+        working-directory: terraform
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: Infra
+        working-directory: terraform
         run: |
           terraform plan -out=tfplan
 
       - name: Terraform Apply
-        working-directory: Infra
+        working-directory: terraform
         run: terraform apply -auto-approve tfplan
 
   deploy-app:
